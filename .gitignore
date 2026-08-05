@@ -1,0 +1,27 @@
+# Target directory
+target/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# IDE & Tooling
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.factorypath
+bin/
+.vscode/
+
+# Logs & Temporary files
+*.log
+logs/
+uploads/
+
+# OS generated
+.DS_Store
+Thumbs.db
