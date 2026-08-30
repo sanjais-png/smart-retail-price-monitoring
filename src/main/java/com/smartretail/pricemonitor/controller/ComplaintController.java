@@ -36,10 +36,25 @@ public class ComplaintController {
                 .body(ApiResponse.success("Complaint submitted successfully", complaint));
     }
 
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'AUTHORITY')")
+    @Operation(summary = "Get all customer complaints for Authority review")
+    public ResponseEntity<ApiResponse<PagedResponse<ComplaintResponse>>> getAllComplaints(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "100") int size) {
+        return ResponseEntity.ok(ApiResponse.success("All complaints retrieved",
+                complaintService.getAllComplaints(page, size)));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Get complaint by ID")
-    public ResponseEntity<ApiResponse<ComplaintResponse>> getComplaintById(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("Complaint retrieved", complaintService.getComplaintById(id)));
+    public ResponseEntity<ApiResponse<ComplaintResponse>> getComplaintById(
+            Authentication authentication,
+            @PathVariable Long id) {
+        boolean isPrivileged = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_AUTHORITY") || a.getAuthority().equals("ROLE_ADMIN"));
+        return ResponseEntity.ok(ApiResponse.success("Complaint retrieved",
+                complaintService.getComplaintById(id, authentication.getName(), isPrivileged)));
     }
 
     @GetMapping("/my")

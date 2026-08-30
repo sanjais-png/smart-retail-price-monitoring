@@ -29,11 +29,26 @@ public class LocationController {
         return ResponseEntity.ok(ApiResponse.success("States retrieved", locationService.getAllStates()));
     }
 
+    @GetMapping("/districts")
+    @Operation(summary = "Get districts by state query parameter")
+    public ResponseEntity<ApiResponse<List<DistrictResponse>>> getDistrictsByStateQuery(@RequestParam(required = false) String state) {
+        return ResponseEntity.ok(ApiResponse.success("Districts retrieved", locationService.getDistrictsByStateName(state)));
+    }
+
     @GetMapping("/states/{stateId}/districts")
     @Operation(summary = "Get all districts in a state")
     public ResponseEntity<ApiResponse<List<DistrictResponse>>> getDistrictsByState(@PathVariable Long stateId) {
         return ResponseEntity.ok(ApiResponse.success("Districts retrieved",
                 locationService.getDistrictsByState(stateId)));
+    }
+
+    @GetMapping("/markets")
+    @Operation(summary = "Get markets by state and district query parameters")
+    public ResponseEntity<ApiResponse<List<MarketResponse>>> getMarketsByStateAndDistrict(
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) String district) {
+        return ResponseEntity.ok(ApiResponse.success("Markets retrieved",
+                locationService.getMarketsByStateAndDistrict(state, district)));
     }
 
     @GetMapping("/districts/{districtId}/markets")

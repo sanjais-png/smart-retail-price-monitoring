@@ -28,7 +28,7 @@ public class CommodityController {
     @Operation(summary = "Get all commodities with pagination and sorting")
     public ResponseEntity<ApiResponse<PagedResponse<CommodityResponse>>> getAllCommodities(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "300") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
         return ResponseEntity.ok(ApiResponse.success("Commodities retrieved",

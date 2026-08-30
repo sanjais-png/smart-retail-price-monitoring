@@ -63,7 +63,7 @@ public class PriceReportController {
     }
 
     @GetMapping("/status/{status}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'AUTHORITY', 'ANALYST')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'AUTHORITY')")
     @Operation(summary = "Get reports filtered by status (PENDING, VERIFIED, REJECTED)")
     public ResponseEntity<ApiResponse<PagedResponse<PriceReportResponse>>> getReportsByStatus(
             @PathVariable ReportStatus status,
