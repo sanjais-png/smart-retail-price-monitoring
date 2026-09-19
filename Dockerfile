@@ -9,5 +9,5 @@ RUN mvn clean package -DskipTests
 # Stage 2: Runtime Container
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY --from=build /app/target/smart-retail-price-monitoring-1.0.0.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT:-8090}"]
