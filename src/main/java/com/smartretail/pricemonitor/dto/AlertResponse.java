@@ -22,5 +22,9 @@ public class AlertResponse {
     private AlertType alertType;
     private BigDecimal targetPrice;
     private boolean active;
+    private BigDecimal lastEvaluatedPrice;
+    private LocalDateTime lastEvaluatedAt;
+    private BigDecimal lastTriggeredPrice;
+    private LocalDateTime lastTriggeredAt;
     private LocalDateTime createdAt;
 }

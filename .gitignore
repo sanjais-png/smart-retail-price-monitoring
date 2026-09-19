@@ -24,6 +24,7 @@ logs/
 uploads/
 scratch/
 
-# OS generated
+# OS & MS Office temporary files
 .DS_Store
 Thumbs.db
+~$*

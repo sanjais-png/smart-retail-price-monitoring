@@ -126,6 +126,10 @@ public class AlertServiceImpl implements AlertService {
                 .alertType(alert.getAlertType())
                 .targetPrice(alert.getTargetPrice())
                 .active(alert.isActive())
+                .lastEvaluatedPrice(alert.getLastEvaluatedPrice())
+                .lastEvaluatedAt(alert.getLastEvaluatedAt())
+                .lastTriggeredPrice(alert.getLastTriggeredPrice())
+                .lastTriggeredAt(alert.getLastTriggeredAt())
                 .createdAt(alert.getCreatedAt())
                 .build();
     }

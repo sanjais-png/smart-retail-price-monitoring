@@ -1,32 +1,46 @@
 @echo off
-title Smart Retail Price Monitoring App Launcher
-echo ===================================================
-echo   Starting Smart Retail Price Monitoring System
-echo ===================================================
+setlocal enabledelayedexpansion
+title Smart Retail Price Monitoring System Launcher
+
+cls
+echo =========================================================================
+echo               SMART RETAIL PRICE MONITORING SYSTEM
+echo =========================================================================
+echo.
+echo Initializing environment variables...
 echo.
 
-:: 1. Set Java 17 Home
-set JAVA_HOME=C:\Program Files\Microsoft\jdk-17.0.17.10-hotspot
-set PATH=%JAVA_HOME%\bin;%PATH%
+:: 1. Set JDK 17 Path
+if exist "C:\Program Files\Microsoft\jdk-17.0.17.10-hotspot" (
+    set "JAVA_HOME=C:\Program Files\Microsoft\jdk-17.0.17.10-hotspot"
+    set "PATH=C:\Program Files\Microsoft\jdk-17.0.17.10-hotspot\bin;%PATH%"
+)
 
-:: 2. Start Spring Boot Backend Server on Port 8090
-echo [1/2] Launching Spring Boot Backend Server (Port 8090)...
-start "Spring Boot Backend (Port 8090)" cmd /k "maven\apache-maven-3.9.9\bin\mvn.cmd spring-boot:run"
+:: 2. Determine Maven executable path
+set "MVN_CMD=mvn"
+if exist "%~dp0maven\apache-maven-3.9.9\bin\mvn.cmd" (
+    set "MVN_CMD=%~dp0maven\apache-maven-3.9.9\bin\mvn.cmd"
+)
 
-:: 3. Wait 5 seconds for backend to start
-timeout /t 5 /nobreak >nul
+echo [1/2] Launching Spring Boot Backend Microservice on Port 8090...
+start "Smart Retail Backend (Port 8090)" cmd /k "cd /d "%~dp0" && set "JAVA_HOME=C:\Program Files\Microsoft\jdk-17.0.17.10-hotspot" && set "PATH=C:\Program Files\Microsoft\jdk-17.0.17.10-hotspot\bin;%%PATH%%" && "%MVN_CMD%" spring-boot:run"
 
-:: 4. Start React Frontend Dev Server on Port 3000
-echo [2/2] Launching Vite React Desktop UI (Port 3000)...
-start "React Desktop App (Port 3000)" cmd /k "cd frontend && npm run dev -- --port 3000 --host"
+echo [2/2] Launching React Desktop UI Application on Port 3000...
+start "Smart Retail React UI (Port 3000)" cmd /k "cd /d "%~dp0frontend" && npm run dev -- --port 3000 --host"
 
-:: 5. Open Web Browser
 echo.
-echo Application starting! Opening http://localhost:3000 in your browser...
-timeout /t 3 /nobreak >nul
+echo Waiting for services to initialize...
+ping 127.0.0.1 -n 6 >nul
+
+echo Opening browser at http://localhost:3000...
 start http://localhost:3000
 
 echo.
-echo ===================================================
-echo System is running! Keep the command windows open.
-echo ===================================================
+echo =========================================================================
+echo   System launched successfully!
+echo   - Backend Service: http://localhost:8090
+echo   - React Desktop UI: http://localhost:3000
+echo   Keep the command windows open while using the app.
+echo =========================================================================
+echo.
+pause

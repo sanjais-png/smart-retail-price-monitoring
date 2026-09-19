@@ -25,7 +25,9 @@ axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      console.warn('Unauthorized request - clearing token');
+      console.warn('Unauthorized request - clearing stale auth token');
+      localStorage.removeItem('fairprice_token');
+      localStorage.removeItem('fairprice_user');
     }
     return Promise.reject(error);
   }

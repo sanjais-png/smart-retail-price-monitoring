@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { catalogApi } from '../api/catalogApi';
+import { alertApi } from '../api/alertApi';
 import axiosClient from '../api/axiosClient';
 import {
   ArrowLeft,
@@ -55,6 +56,36 @@ export const CommodityDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [alertSuccess, setAlertSuccess] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertTargetPrice, setAlertTargetPrice] = useState('');
+  const [alertType, setAlertType] = useState('PRICE_DECREASE');
+  const [alertMarketId, setAlertMarketId] = useState(1);
+  const [alertSubmitting, setAlertSubmitting] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
+
+  const handleCreateAlertSubmit = async (e) => {
+    e.preventDefault();
+    setAlertSubmitting(true);
+    setAlertMessage(null);
+
+    const payload = {
+      commodityId: Number(commodityId),
+      marketId: Number(alertMarketId),
+      alertType: alertType,
+      targetPrice: Number(alertTargetPrice || benchPrice || 50)
+    };
+
+    const res = await alertApi.createAlert(payload);
+    setAlertSubmitting(false);
+
+    if (res.success) {
+      setAlertSuccess(true);
+      setShowAlertModal(false);
+      setTimeout(() => setAlertSuccess(false), 4000);
+    } else {
+      setAlertMessage({ type: 'error', text: res.error });
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -277,8 +308,8 @@ export const CommodityDetailPage = () => {
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={() => {
-                setAlertSuccess(true);
-                setTimeout(() => setAlertSuccess(false), 3000);
+                setAlertTargetPrice(benchPrice ? String(benchPrice) : '');
+                setShowAlertModal(true);
               }}
               style={{
                 padding: '10px 18px',
@@ -295,7 +326,7 @@ export const CommodityDetailPage = () => {
               }}
             >
               {alertSuccess ? <CheckCircle size={16} color="#166534" /> : <Bell size={16} />}
-              <span>{alertSuccess ? 'Alert Active!' : 'Set Price Alert'}</span>
+              <span>{alertSuccess ? 'Alert Set Successfully!' : 'Set Price Alert'}</span>
             </button>
 
             <button
@@ -494,6 +525,152 @@ export const CommodityDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Set Price Alert Modal */}
+      {showAlertModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.6)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div className="glass-card" style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '24px',
+            padding: '32px',
+            maxWidth: '500px',
+            width: '100%',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Bell color="#166534" size={22} /> Subscribe to Price Alert
+              </h3>
+              <button
+                onClick={() => setShowAlertModal(false)}
+                style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#64748b' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {alertMessage && (
+              <div style={{
+                padding: '12px 16px',
+                borderRadius: '12px',
+                backgroundColor: alertMessage.type === 'error' ? '#fef2f2' : '#f0fdf4',
+                color: alertMessage.type === 'error' ? '#dc2626' : '#166534',
+                fontSize: '13px',
+                fontWeight: 600,
+                marginBottom: '16px'
+              }}>
+                {alertMessage.text}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateAlertSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                  Commodity
+                </label>
+                <input
+                  type="text"
+                  disabled
+                  value={`${commodity.name} (${commodity.unit})`}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', fontWeight: 600, color: '#0f172a' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                  Market ID
+                </label>
+                <input
+                  type="number"
+                  required
+                  value={alertMarketId}
+                  onChange={(e) => setAlertMarketId(e.target.value)}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontWeight: 600, color: '#0f172a' }}
+                />
+                <span style={{ fontSize: '11px', color: '#64748b' }}>Default Market ID 1 (Azadpur Mandi)</span>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                  Alert Type
+                </label>
+                <select
+                  value={alertType}
+                  onChange={(e) => setAlertType(e.target.value)}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontWeight: 600, color: '#0f172a' }}
+                >
+                  <option value="PRICE_DECREASE">PRICE DECREASE (Alert when price drops below target)</option>
+                  <option value="PRICE_INCREASE">PRICE INCREASE (Alert when price rises above target)</option>
+                  <option value="THRESHOLD_CROSS">THRESHOLD CROSS (Alert when price crosses threshold in either direction)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                  Target Price Threshold (₹ per {commodity.unit})
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  required
+                  placeholder={`e.g. ${benchPrice || 45.00}`}
+                  value={alertTargetPrice}
+                  onChange={(e) => setAlertTargetPrice(e.target.value)}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#0f172a' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowAlertModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '12px',
+                    backgroundColor: '#f1f5f9',
+                    color: '#475569',
+                    border: '1px solid #cbd5e1',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={alertSubmitting}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '12px',
+                    backgroundColor: '#166534',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {alertSubmitting ? 'Creating Alert...' : 'Confirm Alert'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

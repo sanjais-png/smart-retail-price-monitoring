@@ -44,6 +44,18 @@ public class Alert {
     @Column(name = "is_active")
     private boolean isActive = true;
 
+    @Column(name = "last_evaluated_price", precision = 10, scale = 2)
+    private BigDecimal lastEvaluatedPrice;
+
+    @Column(name = "last_evaluated_at")
+    private LocalDateTime lastEvaluatedAt;
+
+    @Column(name = "last_triggered_price", precision = 10, scale = 2)
+    private BigDecimal lastTriggeredPrice;
+
+    @Column(name = "last_triggered_at")
+    private LocalDateTime lastTriggeredAt;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
