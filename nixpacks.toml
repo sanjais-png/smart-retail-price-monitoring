@@ -1,0 +1,11 @@
+[providers]
+providers = ["java"]
+
+[phases.setup]
+nixPkgs = ["maven", "openjdk17"]
+
+[phases.build]
+cmds = ["mvn clean package -DskipTests"]
+
+[start]
+cmd = "java -jar target/smart-retail-price-monitoring-1.0.0.jar"
