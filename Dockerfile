@@ -10,6 +10,4 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/smart-retail-price-monitoring-1.0.0.jar app.jar
-EXPOSE 8090
-ENV PORT=8090
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT:-8090}"]
